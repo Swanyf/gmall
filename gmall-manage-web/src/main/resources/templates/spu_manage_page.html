@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+</head>
+<body>
+
+    <div id="spu_btn" style="padding:6px;height:auto">
+        <div>
+            <a href="javascript:spuShowAddItems();" class="easyui-linkbutton" data-options="iconCls:'icon-add'">添加</a>
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+            <a href="javascript:addSkuInfo();" class="easyui-linkbutton" data-options="iconCls:'icon-add'">增加sku</a>
+            <a href="javascript:showSkuList();" class="easyui-linkbutton" data-options="iconCls:'icon-search'">sku列表</a>
+        </div>
+
+        <br/>
+
+        <div style="padding:6px;height:auto">
+            一级分类：
+            <select data-options="url:'get/catalog1/items',valueField:'id',textField:'name',
+                        onSelect: function(rec){
+                            var url = 'get/catalog2/items?catalog1Id='+rec.id;
+                            $('#spuCatalog2Items').combobox('clear');
+                            $('#spuCatalog2Items').combobox('reload', url);
+                    }"
+                    class="easyui-combobox" style="width:100px;">
+            </select>
+            二级分类：
+            <select data-options="valueField:'id',textField:'name',
+                        onSelect: function(rec){
+                            var url = 'get/catalog3/items?catalog2Id=' + rec.id;
+                            $('#spuCatalog3Items').combobox('clear');
+                            $('#spuCatalog3Items').combobox('reload',url);
+                        }"
+                    id="spuCatalog2Items" class="easyui-combobox" style="width:100px;"></select>
+            三级分类：
+            <select data-options="valueField:'id',textField:'name'"
+                    id="spuCatalog3Items" class="easyui-combobox" style="width:100px;">
+    1        </select>
+            <!-- 绑定datagrid的数据表格 -->
+            <a href="javascript:spuShowAttrItems();" class="easyui-linkbutton"
+               data-options="iconCls:'icon-search'" >刷新属性列表</a>
+        </div>
+    </div>
+
+
+    <!-- datagrid 数据表格 -->
+    <table id="spu_dg" class="easyui-datagrid" title="spu属性列表"
+           data-options="toolbar:'#spu_btn',singleSelect:true,collapsible:true,method:'get'">
+        <thead>
+        <tr>
+            <!-- field：对应bean的属性 -->
+            <th data-options="field:'id'" width="20%" align="center">属性id</th>
+            <th data-options="field:'spuName'" width="30%" align="center">属性名称</th>
+            <th data-options="field:'description'" width="50%" align="center">属性名称</th>
+        </tr>
+        </thead>
+    </table>
+
+    <div th:include="spu_info_page"></div>
+    <div th:include="sku_list_page"></div>
+    <div th:include="sku_info_page"></div>
+
+    <script>
+
+        function spuShowAddItems() {
+            $("#spuInfoDlg").dialog("open");
+
+            // 初始化添加spu信息的弹出框
+            initSpuInfoDlg();
+        }
+
+        function addSkuInfo() {
+            // 获取当前选中的行
+            var selectedRow = $("#spu_dg").datagrid("getSelected");
+            console.log(selectedRow);
+            if (selectedRow == null) {
+                alert("请选择三级分类下spu要添加的sku信息！");
+                return;
+            }
+            $("#add_sku_dl").dialog("open");
+
+            var spuId = $("#spu_dg").datagrid("getSelected").id;
+            console.log("selectedRow=" + spuId);
+
+            initShowSaleAttr(spuId);
+
+            initShowImgList(spuId);
+        }
+
+        // 显示datagrid表格的数据
+        function spuShowAttrItems() {
+
+            // 获取三级分类下拉列表id
+            var catalog3Id = $("#spuCatalog3Items").combobox("getValue");
+            if (!catalog3Id) {
+                catalog3Id = 61;
+            }
+            $("#spu_dg").datagrid({
+                url:'get/spu/items/by/catalog3Id?catalog3Id=' + catalog3Id
+            });
+
+
+            // 显示平台属性
+            initShowAttrInfo(catalog3Id);
+        }
+
+        // 显示skulist数据
+        function showSkuList() {
+            // 获取当前选中的行
+            var selectedRow = $("#spu_dg").datagrid("getSelected");
+            console.log(selectedRow);
+            if (selectedRow == null) {
+                alert("请选择三级分类下spu要查看的sku信息！");
+                return;
+            }
+            $("#skulist_dlg").dialog("open");
+
+            $("#skulist_dg").datagrid({
+                "url" : 'get/sku/info/list?spuId=' + selectedRow.id
+            });
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swan.gmall.list.json.BaseCatalogMapper">
+    <resultMap id="selectAttrInfosByJoinMap" type="com.swan.gmall.list.json.BaseCatalog1" autoMapping="true">
+        <result property="id" column="id"></result>
+        <collection property="catalog2List" ofType="com.swan.gmall.list.json.BaseCatalog2" autoMapping="true">
+            <result property="id" column="catalog2Id"></result>
+
+            <collection property="catalog3List" ofType="com.swan.gmall.list.json.BaseCatalog3" autoMapping="true">
+                <result property="id" column="catalog3Id"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getAllCatalog" resultMap="selectAttrInfosByJoinMap">
+      SELECT a.id as id,b.id as catalog2Id,b.name,b.catalog1_id,c.id as catalog3Id,c.`name`,c.catalog2_id
+        from base_catalog1 a ,base_catalog2 b , base_catalog3 c
+        where a.id = b.catalog1_id and b.id = c.catalog2_id
+    </select>
+</mapper>

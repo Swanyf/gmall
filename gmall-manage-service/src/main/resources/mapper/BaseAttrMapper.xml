@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swan.gmall.manage.mapper.BaseAttrInfoMapper">
+    <resultMap id="selectAttrInfosByJoinMap" type="com.swan.gmall.bean.BaseAttrInfo" autoMapping="true">
+        <result property="id" column="attr_id"></result>
+        <collection property="attrValueList" ofType="com.swan.gmall.bean.BaseAttrValue" autoMapping="true">
+            <result property="id" column="value_id"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectAttrInfosByJoin" resultMap="selectAttrInfosByJoinMap">
+      select a.id as attr_id,b.id as value_id,a.*,b.*
+      from base_attr_info a,base_attr_value b
+      where a.id = b.attr_id
+      and b.id in (${join})
+    </select>
+</mapper>

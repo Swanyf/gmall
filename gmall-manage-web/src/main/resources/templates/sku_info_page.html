@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div id="add_sku_dl" class="easyui-dialog" title="添加sku" style="width:600px;height:700px"
+         data-options="closed:true,iconCls:'icon-save',resizable:true,modal:true">
+        <form id="skuForm">
+            <div style="padding: 6px">
+                <label>sku名称：</label>
+                <input id="skuName" name="skuName" class="easyui-textbox" style="width:300px;"/>
+                <br/><br/>
+                <label>商品价格：</label>
+                <input  id="price" name="price" class="easyui-numberbox" data-options="min:0,precision:2" style="width:300px;"/>
+                <br/><br/>
+                <label>商品重量(千克)：</label>
+                <input  id="weight" name="weight" class="easyui-numberbox" data-options="min:0,precision:2" style="width:300px;"/>
+                <br/><br/>
+                <label>商品规格描述：</label>
+                <input  id="skuDesc" name="skuDesc" class="easyui-textbox" data-options="multiline:true" style="width:500px;height:100px"/>
+                <input id="spuIdForSku" name="spuId" type="hidden"/>
+
+                <input id="skuId" name="id" type="hidden"/>
+
+                <input id="catalog3IdForSku" name="catalog3Id" type="hidden"/>
+                <br/><br/>
+
+                <input id="skuInfo" name="skuInfo" type="hidden"/>
+
+                <div id="attrInfoGroup"  title="平台属性" class="easyui-panel" style="padding:5px;" ></div>
+
+                <div id="spuSaleAttrGroup" title="销售属性" class="easyui-panel" style="padding:5px;" ></div>
+
+
+                <!----------------商品图片列表 ----------------------->
+
+                <table id="skuImgDg" class="easyui-datagrid" title="商品图片列表" style="height: 275px"
+                       data-options="buttons:'#skuBtns',singleSelect:false,selectOnCheck:false,method:'get'" >
+                </table>
+                <br>
+                <div id="skuBtns" align="right">
+                    <a href="javascript:saveSku();" class="easyui-linkbutton">保 存</a>
+                    <a href="javascript:closeSku();" class="easyui-linkbutton">关 闭</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</body>
+    <script>
+
+        // 保存
+        function saveSku() {
+            // 用于保存提交到后台的数据
+            var skuJson = {};
+
+            // 获取当前spuId
+            var selectedRow = $("#spu_dg").datagrid("getSelected");
+            skuJson["spuId"] = selectedRow.id;
+
+            // 获取当前三级分类id
+            var catalog3Id = $("#spuCatalog3Items").combobox("getValue");
+            if (!catalog3Id) {
+                catalog3Id = '61';
+            }
+            skuJson["catalog3Id"] = catalog3Id;
+
+
+            // 获取文本框的值
+            var skuName = $("#skuName").textbox("getValue");
+            var price = $("#price").textbox("getValue");
+            var weight = $("#weight").textbox("getValue");
+            var skuDesc = $("#skuDesc").textbox("getValue");
+
+            skuJson["skuName"] = skuName;
+            skuJson["price"] = price;
+            skuJson["weight"] = weight;
+            skuJson["skuDesc"] = skuDesc;
+
+            // 获取选中的平台属性、属性值
+            var attrInfos = $("#attrInfoGroup").children("span");
+            $(attrInfos).each(function (i,attr) {
+                var attrId = $(attr).attr("attrId");
+                skuJson["skuAttrValueList[" + i + "].attrId"] = attrId;
+                skuJson["skuAttrValueList[" + i + "].valueId"] = $(attr).children("select").val();
+                //console.log(attrId + "=" + $(attr).children("select").val());
+            });
+
+            // 获取销售属性
+            var saleAttrs = $("#spuSaleAttrGroup").children("span");
+            $(saleAttrs).each(function (i,saleAttr) {
+                var saleAttrId = $(saleAttr).attr("saleAttrId");
+                // span的属性值(销售属性id)
+                skuJson["skuSaleAttrValueList[" + i +"].saleAttrId"] = saleAttrId;
+                // 选中的option属性值(销售属性值id)
+                skuJson["skuSaleAttrValueList[" + i + "].saleAttrValueId"] = $(saleAttr).children("select").val();
+                //console.log(saleAttrId + "=" + $(saleAttr).children("select").val());
+
+                // span的文本值(销售属性名称)
+                var saleAttrName = $(saleAttr).attr("saleAttrName");
+                skuJson["skuSaleAttrValueList[" + i + "].saleAttrName"] = saleAttrName
+                //console.log(saleAttrName);
+                // option的文本值(销售属性值名称)
+                var saleAttrValueName = $(saleAttr).children("select").find("option:selected").text();
+                skuJson["skuSaleAttrValueList[" + i + "].saleAttrValueName"] = saleAttrValueName;
+                //console.log(saleAttrValueName);
+            });
+
+            // 获取所有复选框选中的行
+            var imgRows = $("#skuImgDg").datagrid("getChecked");
+            //console.log(imgRows);
+            // 获取图片
+            var defaultImg = $("input[name='isDefault']:checked").val();
+            console.log(defaultImg);
+
+            // 单选按钮没选中时，设置第一个为默认图片url
+            if (!defaultImg) {
+                defaultImg = $(imgRows)[0].imgUrl;
+                console.log(defaultImg);
+            }
+            skuJson["skuDefaultImg"] = defaultImg;
+
+            // 遍历得到每一行的图片数据
+            $(imgRows).each(function (i,imgRow) {
+                skuJson["skuImageList[" + i + "].imgName"] = imgRow.imgName;
+                skuJson["skuImageList[" + i + "].imgUrl"] = imgRow.imgUrl;
+                skuJson["skuImageList[" + i + "].spuImgId"] = imgRow.id;
+                //console.log(imgRow.imgName + "\t" + imgRow.imgUrl + "\t" + imgRow.id + "\t" + defaultImg);
+                if (imgRow.imgUrl == defaultImg) {
+                    skuJson["skuImageList[" + i + "].isDefault"] = "1";
+                }
+            });
+
+            $.post("save/sku/info",skuJson,function (msg) {
+                alert(msg);
+            });
+        }
+
+        // 显示商品图片列表
+        function initShowImgList(spuId) {
+            $("#skuImgDg").datagrid({
+                url:'get/spu/img/list?spuId=' + spuId,
+                columns:[[
+                    {field:'checkboxId',checkbox:true,width:20},
+                    {field:'id',title:'编号',width:30,align:'center'},
+                    {field:'imgName',title:'图片名称',width:200,align:'center'},
+                    {field:'imgUrl',title:'图片路径',width:200,align:'center',
+                        formatter:function (value,row,index) {
+                            return "<img src='" + value + "' style='width: 198px;height: 122px' align='center'></img>";
+                        }
+                    },
+                    {field:'isDefault',title:'是否为默认图片',width:90,align:'center',
+                        formatter:function (value,row,index) {
+                            return "<input type='radio' name='defaultImg' value='" + row.imgUrl + "'/>";
+                        }
+                    }
+                ]]
+            });
+        }
+
+        // 显示销售属性
+        function initShowSaleAttr(spuId) {
+            // 根据spuId 获取销售属性和销售属性值
+            $.post("get/sale/attr?spuId=" + spuId,function (saleAttrList) {
+                $("#spuSaleAttrGroup").empty();
+                // 遍历saleAttrList数据
+                $(saleAttrList).each(function (i,saleAttr) {
+                    var spanBegin = "<span saleAttrId='" + saleAttr.saleAttrId + "' saleAttrName='" + saleAttr.saleAttrName + "'>";
+                    var saleAttrName = saleAttr.saleAttrName;
+
+                    var selectBegin = "<select>";
+                    var options = "";
+
+                    // 获取saleAttrValueName
+                    var saleAttrValueNameList = saleAttr.spuSaleAttrValueList;
+                    $(saleAttrValueNameList).each(function (j,saleAttrValue) {
+                        var optionBegin = "<option value='" + saleAttrValue.id + "'>";
+                        var saleAttrValueName = saleAttrValue.saleAttrValueName;
+
+                        var optionEnd = "</option>";
+
+                        options += optionBegin + saleAttrValueName +  optionEnd;
+                    });
+
+                    var selectEnd = "</select>";
+                    var spanEnd = "</span>";
+
+                    $("#spuSaleAttrGroup").append(spanBegin + saleAttrName + "：" + selectBegin + options + selectEnd + spanEnd + "&nbsp;&nbsp;");
+                });
+            });
+        }
+
+        // 显示平台属性
+        function initShowAttrInfo(catalog3Id) {
+            // 根据catalog3Id 获取平台属性和属性值
+            // var catalog3Id = $("#spuCatalog3Items").combobox("getValue");
+            $.post("get/attr/info?catalog3Id=" + catalog3Id,function (attrInfoList) {
+                // 初始化数据，防止第二次打开页面出现冗余数据
+                $("#attrInfoGroup").empty();
+                // 遍历attrInfo的数据
+                $(attrInfoList).each(function (i,attrInfo) {
+                    // <span name="xx"> xxx <select><option value="xx"> xxx </option></select></span>
+                    // 设置span起始标签和属性
+                    var spanBegin = "<span attrId = '" + attrInfo.id +  "'>";
+                    // 获取attrName
+                    var attrName = attrInfo.attrName;
+
+                    var selectBegin = "<select>";
+                    var options = "";
+
+                    // 获取attrValueName
+                    var attrValueList =  attrInfo.attrValueList;
+                    $(attrValueList).each(function (j,attrValue) {
+                        var optionBegin = "<option value='" + attrValue.id + "'>"
+                        var valueName = attrValue.valueName;
+                        var optionEnd = "</option>";
+                        options += optionBegin + valueName + optionEnd;
+                    });
+                    var selectEnd = "</select>"
+                    var spanEnd = "</span>"
+                    $("#attrInfoGroup").append(spanBegin + attrName + "：" + selectBegin + options + selectEnd + spanEnd + "&nbsp;&nbsp;");
+                });
+            });
+        }
+    </script>
+</html>

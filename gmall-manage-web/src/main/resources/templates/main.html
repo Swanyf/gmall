@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理系统</title>
+    <script type="text/javascript" src="/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/easyui/easyloader.js"></script>
+    <script type="text/javascript" src="/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/easyui/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/webuploader/webuploader.js"></script>
+    <link rel="stylesheet" type="text/css" href="/easyui/themes/material/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/easyui/themes/icon.css">
+
+    <style>
+        a{
+            text-decoration: none;
+            color: #1f637b;
+        }
+
+        ul li{
+            list-style: none;
+        }
+    </style>
+
+    <script>
+        function add_tab(title,url) {
+
+            // 通过exists方法，判断选项卡title标题是否存在
+            var exists = $('#tt').tabs('exists',title);
+
+            // 如果已经存在，就根据选项卡的title标题选中当前的选项卡页面
+            if (exists){
+                // 调用select方法
+                $('#tt').tabs('select',title);
+            } else {
+                // 不存在就调用 add 方法通过参数传递的title标题添加选项卡
+                $('#tt').tabs('add',{
+                    title:title,
+                    href:url,
+                    closable:true
+                });
+            }
+        }
+
+        // 显示spu商品管理的选项卡
+        function spu_manage(title,url) {
+            // 通过exists方法，判断选项卡title标题是否存在
+            var exists = $('#tt').tabs('exists',title);
+
+            // 如果已经存在，就根据选项卡的title标题选中当前的选项卡页面
+            if (exists){
+                // 调用select方法
+                $('#tt').tabs('select',title);
+            } else {
+                // 不存在就调用 add 方法通过参数传递的title标题添加选项卡
+                $('#tt').tabs('add',{
+                    title:title,
+                    href:url,
+                    closable:true
+                });
+            }
+        }
+    </script>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'',split:true" style="height:100px;"></div>
+    <div data-options="region:'south',title:'',split:true" style="height:100px;"></div>
+    <div data-options="region:'east',title:'',split:true" style="width:100px;"></div>
+    <div data-options="region:'west',title:'',split:true" style="width:180px;">
+        <!-- 手风琴控件 -->
+        <div class="easyui-accordion" style="width:176px;height:200px;">
+            <div title="基本信息管理" data-options="iconCls:'icon-tip'" style="overflow:auto;padding:10px;height: 800px">
+                <ul>
+                    <!-- 参数title标题、url请求的ajax地址 -->
+                    <li><a href="javascript:add_tab('平台属性管理','attr/list/page')">平台属性管理</a></li>
+                </ul>
+            </div>
+            <div title="商品信息管理" data-options="iconCls:'icon-tip'" style="overflow:auto;padding:10px;height: 800px">
+                <ul>
+                    <li><a href="javascript:spu_manage('商品信息管理','spu/manage/page')">商品spu管理</a></li>
+                </ul>
+            </div>
+            <div title="广告管理" data-options="iconCls:'icon-tip'" style="padding:10px;">
+                广告管理
+            </div>
+        </div>
+
+    </div>
+
+
+    <div data-options="region:'center',title:''" style="padding:5px;background:#eee;">
+        <!-- 平台信息管理 -->
+        <div id="tt" class="easyui-tabs" style=""></div>
+        <!-- spu商品管理 -->
+        <div id="spu_tabs" class="easyui-tabs" style=""></div>
+    </div>
+
+
+</body>
+</html>

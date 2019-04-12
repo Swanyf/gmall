@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div id="skulist_dlg" class="easyui-dialog" title="sku列表" style="width:600px;height:600px;"
+         data-options="closed:true,iconCls:'icon-save',resizable:true,modal:true">
+
+        <table id="skulist_dg" class="easyui-datagrid" align="center" style="height:550px;"
+               data-options="fitColumns:true,singleSelect:true">
+        </table>
+    </div>
+
+    <script>
+        $('#skulist_dg').datagrid({
+            columns:[[
+                {field:'id',title:'库存单元id',width:100},
+                {field:'skuName',title:'库存单元名称',width:100},
+                {field:'price',title:'价格',width:100},
+                {field:'weight',title:'重量',hidden:'true',width:100},
+                {field:'catalog3Id',title:'三级分类',hidden:'true',width:100},
+                {field:'skuImageList',title:'图片列表',hidden:'true',width:100},
+                {field:'skuAttrValueList',title:'平台属性',hidden:'true',width:100},
+                {field:'skuSaleAttrValueList',title:'销售属性',hidden:'true',width:100},
+                {field:'skuDesc',title:'商品描述',hidden:'true',width:100},
+                {field:'skuDefaultImg',title:'默认图片',hidden:'true',width:100}
+            ]],
+            toolbar:[{
+                iconCls:'icon-edit',
+                text:'编辑',
+                handler:function () {
+
+                }
+            },'-',{
+                iconCls:'icon-remove',
+                text:'删除',
+                handler:function () {
+
+                }
+            }]
+        });
+    </script>
+
+
+</body>
+
+
+
+</html>
